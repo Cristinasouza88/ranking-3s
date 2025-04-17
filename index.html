@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ranking Comercial</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      padding: 40px;
+      color: #333;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 28px;
+      color: #007b8f;
+      margin-bottom: 30px;
+    }
+
+    .podium {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      margin-bottom: 40px;
+    }
+
+    .podium div {
+      width: 120px;
+      margin: 0 10px;
+      background: #007b8f;
+      color: white;
+      padding-top: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border-radius: 10px 10px 0 0;
+    }
+
+    .first { height: 200px; }
+    .second { height: 150px; background: #00a0c6; }
+    .third { height: 100px; background: #00bcd4; }
+
+    .podium p {
+      margin: 10px 0;
+      font-weight: bold;
+    }
+
+    table {
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+    }
+
+    th {
+      background: #007b8f;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background: #f0f0f0;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>🏆 Ranking Comercial em Tempo Real</h2>
+
+  <div class="podium" id="podium">
+    <div class="second">
+      <p id="secondName">2º</p>
+    </div>
+    <div class="first">
+      <p id="firstName">1º</p>
+    </div>
+    <div class="third">
+      <p id="thirdName">3º</p>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Posição</th>
+        <th>Nome</th>
+        <th>Pontos</th>
+      </tr>
+    </thead>
+    <tbody id="ranking"></tbody>
+  </table>
+
+  <script>
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/1MZQS6EXP1vISqndWHdx80xKePCloMHFN2pM4j28TZy4/export?format=csv';
+
+    fetch(csvUrl)
+      .then(response => response.text())
+      .then(data => {
+        const rows = data.trim().split('\n').slice(1);
+        const tbody = document.getElementById('ranking');
+
+        let podium = [];
+
+        rows.forEach((row, index) => {
+          const cols = row.split(',');
+          if (cols.length >= 2) {
+            if (index < 3) podium.push(cols[0]);
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${index + 1}</td>
+              <td>${cols[0]}</td>
+              <td>${cols[1]}</td>
+            `;
+            tbody.appendChild(tr);
+          }
+        });
+
+        if (podium.length >= 3) {
+          document.getElementById("firstName").innerText = "🥇 " + podium[0];
+          document.getElementById("secondName").innerText = "🥈 " + podium[1];
+          document.getElementById("thirdName").innerText = "🥉 " + podium[2];
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao carregar ranking:', error);
+        document.getElementById('ranking').innerHTML = '<tr><td colspan="3">Erro ao carregar os dados.</td></tr>';
+      });
+  </script>
+</body>
+</html>
